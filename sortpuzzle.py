@@ -33,6 +33,7 @@ now = [
     [0, 0, 0, 0]
 ]
 
+# クリア判定に使う。
 orig_occupy = []
 for i in now:
     orig_occupy.append(i[:])
@@ -126,22 +127,6 @@ def check_movable():
                able.append((j,i))
    return able
 
-def check_complete_orig():
-    """
-    移動完了の判定を行う。
-    """
-    tf = False
-    if now == orig_occupy:
-        return tf
-    #else:下記の合否判定の処理に移る。
-    for i in now:
-        clr, nmb = check_send(i)
-        if nmb != 4 and nmb != 0:
-            break
-    else:
-        tf = True
-    return tf
-
 def check_complete():
     """
     移動完了の判定を行う。
@@ -204,53 +189,6 @@ def check_next_movable(now, i):
     next_able = check_movable()
     now = load_temp(temp) #仮の更新なので配列を戻しておく。
     return next_able
-    """
-    #以下、旧版
-    able = check_movable()
-    next_candidates = []
-    candidates = list(range(len(able)))
-    for i in candidates:
-        order_movement([i])
-        able = check_movable()
-        next_candidates.append((i,able))
-        now = load_temp(temp)
-    return next_candidates
-    """
-
-def orig_check_group(now):
-    """
-    #REVIEW: 消したい。一応消す前に記録残しておく。
-    check_next関数の結果から元の遷移候補との差分を整理
-    """
-    plus = []
-    same = []
-    #minus = []
-    able = check_movable()
-    next_candidates = check_next(now)
-    classified = []
-    for i in next_candidates:
-        for j in i[1]:
-            if j in able:
-                same.append(j)
-            else:
-                plus.append(j)
-        """
-        for j in able:
-            if j not in i[1]:
-                minus.append(j)
-            else:
-                pass #書くならsame.append(j)のイメージだが重複する。
-        """
-        print(len(same)  == len(list(set(same))))
-        print(len(plus)  == len(list(set(plus))))
-        same = list(set(same))
-        plus = list(set(plus))
-        #minus = list(set(minus))
-        ###classified.append([same, plus, minus])
-        classified.append([same, plus])
-        break
-    ###return classified
-    return same, plus
 
 def check_group(now, i):
     """
@@ -270,7 +208,7 @@ def check_group(now, i):
 """
 自動化を目指してorder_movement関数に流すオーダーを作成する。
 """
-### まずは等価な情報を判定して候補を減らす工夫をしないと苦しい。
+###   まずは等価な情報を判定して候補を減らす工夫をしないと苦しい。
 #nowを一時保存しつつ中間物てきなnowから次の判定を行うとかを考える。
 #どっかで終了判定も書く。
 #終了判定もそうだが、等価配列の特定もしておきたい。ループ判定にも繋がる。
@@ -287,7 +225,7 @@ for i in range(len(able)):
 import time
 tm = time.time()
 
-#以下の処理経路を自動で探索させたい。
+#以下の処理経路を自動で探索させたい。 ##これは等価判定による削減前のオーダー。
 total_order = [
     [1,5,17], [4,6], [0,2], [1], [1], [2], [1],
     [1], [1], [1,11], [3], [2], [2], [0,7],
@@ -295,7 +233,7 @@ total_order = [
 ]
 
 for i in total_order:
-    order_movement(i, False)
+    order_movement(i)
 
 print(time.time() - tm)
 
